@@ -1,0 +1,30 @@
+#!/usr/bin/python
+import os, sys
+
+G      = os.path.dirname(os.path.realpath(__file__))
+HOME   = os.path.expanduser('~')
+BACKUP = os.path.sep.join((G, 'backup'))  # None for disabling backing up
+
+SHELL  = os.path.basename(os.environ['SHELL'])
+
+sys.path.append(os.path.join(G, 'components', 'python'))
+import install
+
+def install_file(source, target): install.symlink(os.path.sep.join((HOME, target)), os.path.sep.join((G, 'conf', source)), BACKUP)
+
+def ini_config(ini, changes):
+    sections = {}
+    for name, params in changes.iteritems(): sections[name.join(('[', ']'))] = params
+    install.ini_config(os.path.sep.join((HOME, ini)), sections, BACKUP)
+
+if __name__ == '__main__':
+    if SHELL == 'zsh':
+        install_file('event-handler', '.zshenv')
+        install_file('event-handler', '.zprofile')
+        install_file('event-handler', '.zshrc')
+        install_file('event-handler', '.zlogin')
+        install_file('event-handler', '.zlogout')
+
+    install_file('conky.conf', '.conkyrc')
+
+    ini_config('.kde/share/config/kdeglobals', {'Paths': {'Autostart[$e]': 'some_path1'}})

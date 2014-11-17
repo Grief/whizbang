@@ -1,0 +1,50 @@
+if [ -n "$BASH_SOURCE" ]; then
+	shell='bash'
+	file="${BASH_SOURCE[0]}"
+elif [ -n "$ZSH_VERSION" ]; then
+	shell='zsh'
+	file="${(%):-%N}"
+else file='unsupported' fi
+
+if [ "$file" != 'unsupported' ]; then
+	handler="`readlink \"$file\"`"
+	conf="`dirname \"$handler\"`"
+	export G_SCRIPTS="`dirname \"$conf\"`"
+fi
+
+handle() {
+	if [ ! -d "$1" ]; then return; fi
+	for handler in "$1"/*; do
+		if [ -e "$handler" ]; then
+			case "$handler" in
+				*.sh|*.$shell	) . "$handler"	;;
+				*.run			)   "$handler"	;;
+				*.bg			)   "$handler"&	;;
+			esac
+		fi
+	done
+}
+
+event() {
+	for event; do
+		handle "$G_SCRIPTS/user/$USER/events/$event"
+		handle "$G_SCRIPTS/user/_custom/events/$event"
+		handle "$G_SCRIPTS/user/_common/events/$event"
+	done
+}
+
+case `basename "$file"` in
+#BASH
+	'.bash_profile'|'.bash_login'|'.profile') event shell shell-early-login shell-interactive shell-late-login ;;
+
+	'.bashrc'		) event shell shell-interactive	;;
+	'.bash_logout'	) event shell-logout			;;
+#ZSH
+	'.zshenv'  		) event shell				;;
+	'.zprofile'		) event shell-early-login	;;
+	'.zshrc'   		) event shell-interactive	;;
+	'.zlogin'  		) event shell-late-login 	;;
+	'.zlogout' 		) event shell-logout		;;
+#UNSUPPORTED
+	'unsupported'	) echo 'Your shell seems to be unsupported'
+esac

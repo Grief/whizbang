@@ -3,3 +3,7 @@
 components/oh-my-zsh
 
 backup/*
+
+user/*
+!user/_common
+!user/_custom

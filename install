@@ -27,4 +27,6 @@ if __name__ == '__main__':
 
     install_file('conky.conf', '.conkyrc')
 
-    ini_config('.kde/share/config/kdeglobals', {'Paths': {'Autostart[$e]': 'some_path1'}})
+    install_file('event-handler', '.config/autostart/de-startup')
+
+    ini_config('.kde/share/config/kdeglobals', {'Paths': {'Autostart[$e]': '/g/components/kde/autostart'}})

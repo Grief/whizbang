@@ -1,0 +1,3 @@
+[submodule "modules/gloydius"]
+	path = modules/gloydius
+	url = git@github.com:grief/gloydius.git

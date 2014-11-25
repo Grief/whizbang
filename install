@@ -19,11 +19,7 @@ def ini_config(ini, changes):
 
 if __name__ == '__main__':
     if SHELL == 'zsh':
-        install_file('event-handler', '.zshenv')
-        install_file('event-handler', '.zprofile')
-        install_file('event-handler', '.zshrc')
-        install_file('event-handler', '.zlogin')
-        install_file('event-handler', '.zlogout')
+        for name in ['.zshenv', '.zprofile', '.zshrc', '.zlogin', '.zlogout']: install_file('event-handler', name)
 
     install_file('conky.conf', '.conkyrc')
 

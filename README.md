@@ -15,7 +15,7 @@ Linux environment, mostly console, KDE is preferred, latest Kubuntu is even bett
 In the most of linux distributions you are working under unprivileged user which cannot touch files outside his or her home directory:
 
     sudo mkdir /g
-    sudo chown $USER:`id -g -n $USER` /g
+    sudo chown $USER:`id -gn $USER` /g
 
 The installation itself
 

@@ -1,8 +1,0 @@
-[submodule "modules/audio-gearbox"]
-	path = modules/audio-gearbox
-	url = git@github.com:grief/audio-gearbox.git
-	branch = master
-[submodule "modules/gloydius"]
-	path = modules/gloydius
-	url = git@github.com:grief/gloydius.git
-	branch = master

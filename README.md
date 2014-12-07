@@ -10,7 +10,7 @@ Linux environment, mostly console, KDE is preferred, latest Kubuntu is even bett
 
 ###Installation
 
-<sup>*I prefer installation into the topmost directory of the filesystem named by one letter. That makes the console access to contents of whizbang the fastest possible. As I am Grief, I use `/g/` directory. You are free to choose any other location you like but all instructions would assume that you want to install whizbang into that directory.*</sup>
+*<sup>I prefer installation into the topmost directory of the filesystem named by one letter. That makes the console access to contents of whizbang the fastest possible. As I am Grief, I use `/g/` directory. You are free to choose any other location you like but all instructions would assume that you want to install whizbang into that directory.</sup>*
 
 In the most of linux distributions you are working under unprivileged user which cannot touch files outside his or her home directory:
 

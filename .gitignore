@@ -1,6 +1,6 @@
 .idea
 
-components/oh-my-zsh
+modules/*
 
 backup/*
 

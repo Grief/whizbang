@@ -1,0 +1,115 @@
+#!/usr/bin/python
+import argparse, os, re, sys
+
+GITHUB_DESCRIPTION = re.compile('repository-description">(.*)<')
+
+ERROR_NOT_RUN      = -1
+ERROR_USER_ABORTED = -2
+ERROR_UNKNOWN      = -3
+
+INSTALLATION_ABORTED = 'Installation aborted.'
+
+if __name__ != '__main__':
+    print "You must simply run the installation script."
+    exit(ERROR_NOT_RUN)
+
+WHIZBANG = os.path.dirname(os.path.realpath(__file__))
+MODULES  = os.path.sep.join((WHIZBANG, 'modules'))
+GLOYDIUS = os.path.sep.join((MODULES, 'gloydius'))
+
+HOME   = os.path.expanduser('~')
+SHEBANG  = '#!/bin/sh\n'
+ZSHEBANG = '#!/bin/zsh\n'
+
+def install_file(source, target): symlink(os.path.sep.join((HOME, target)), os.path.sep.join((WHIZBANG, 'conf', source)), BACKUP)
+
+def ini_config(ini, changes):
+    sections = {}
+    for name, params in changes.iteritems(): sections[name.join(('[', ']'))] = params
+    ini_config(os.path.sep.join((HOME, ini)), sections, BACKUP)
+
+
+def activate():
+    event_handler = p(WHIZBANG, 'conf', 'event-handler')
+    shell  = os.path.basename(os.environ['SHELL'])
+
+    if shell == 'zsh':
+        for resource, events in [
+            ('.zshenv',   'shell'),
+            ('.zprofile', 'shell-early-login'),
+            ('.zshrc',    'shell-interactive'),
+            ('.zlogin',   'shell-late-login'),
+            ('.zlogout',  'shell-logout')
+        ]:
+            write_file(p(HOME, resource), ''.join(('. ', event_handler, ' ', shell, ' ', events, '\n')))
+
+def deactivate():
+    print "NOT IMPLEMENTED YET"
+
+def print_description(module):
+    print module['type']
+
+def load_modules_list():
+    modules = {}
+    for name in find_in(MODULES_LIST, 'file not link'):
+        modules[name] = module = {}
+        for line in read_file_lines(p(MODULES_LIST, name)):
+            line = line.strip()
+            eq = line.find('=')
+            if eq == -1 or line.startswith('#'): continue
+            module[line[:eq]] = line[eq + 1:]
+
+    return modules
+
+def list_modules():
+    modules = load_modules_list()
+    installed = find_in(MODULES, 'not hidden dir')
+    for name in installed | set(modules.keys()):
+        print name #find_on_page('https://github.com/{}'.format('robbyrussell/oh-my-zsh'), GITHUB_DESCRIPTION).strip()
+
+try:
+    if not os.path.isdir(GLOYDIUS):
+        os.makedirs(GLOYDIUS)
+        print 'Whizbang requires Gloydius python libraries to work. Would you like to download it now? (yes/no)'
+        while True:
+            answer = raw_input().lower()
+            if answer == 'no':
+                print INSTALLATION_ABORTED
+                exit(ERROR_USER_ABORTED)
+            if answer != 'yes':
+                print "Please just type 'yes' or 'no'"
+                continue
+            code = os.system('cd {}; git clone git@github.com:grief/gloydius.git'.format(MODULES))
+            if code != 0:
+                print "Cloning from git failed with error {}. You may check the above output. {}".format(code, INSTALLATION_ABORTED)
+                exit(ERROR_UNKNOWN)
+            break
+
+    sys.path.insert(0, GLOYDIUS)
+
+    from gloydius.install import *
+    from gloydius.fs import path as p
+
+    from gloydius.web import *
+
+    MODULES_LIST = p(MODULES, '.list')
+
+    parser = argparse.ArgumentParser()
+    actions = parser.add_mutually_exclusive_group()
+    actions.add_argument('-a', '--activate',     action='store_true', help='Activates Whizbang for the current user')
+    actions.add_argument('-d', '--deactivate',   action='store_true', help='Deactivates Whizbang for the current user')
+    actions.add_argument('-l', '--list-modules', action='store_true', help='List modules')
+    args = parser.parse_args()
+    if   args.activate:     activate()
+    elif args.deactivate:   deactivate()
+    elif args.list_modules: list_modules()
+
+    BACKUP = p(WHIZBANG, 'backup')  # None for disabling backing up
+
+    # install_file('conky.conf', '.conkyrc')
+    #
+    # install_file('event-handler', '.config/autostart/de-startup')
+    #
+    # ini_config('.kde/share/config/kdeglobals', {'Paths': {'Autostart[$e]': '/g/components/kde/autostart'}})
+
+except KeyboardInterrupt: print INSTALLATION_ABORTED

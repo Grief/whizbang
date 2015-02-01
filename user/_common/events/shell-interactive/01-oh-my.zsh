@@ -1,4 +1,4 @@
-ZSH="$G_SCRIPTS/components/oh-my-zsh"
+ZSH="$WHIZBANG/modules/oh-my-zsh"
 if [ ! -e "$ZSH" ]; then
     echo 'Would you like to download and install oh-my-zsh [ http://ohmyz.sh/ ]? (yes/no)'
     while true; do
@@ -9,7 +9,7 @@ if [ ! -e "$ZSH" ]; then
                 git clone git://github.com/robbyrussell/oh-my-zsh.git "$ZSH"
                 themes="$ZSH/custom/themes"
                 mkdir "$themes"
-                ln -s "$G_SCRIPTS/conf/oh-my.zsh-theme" "$themes"
+                ln -s "$WHIZBANG/conf/oh-my.zsh-theme" "$themes"
                 break
                 ;;
             *) echo 'Please type only "yes" or "no"'

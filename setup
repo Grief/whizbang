@@ -30,18 +30,33 @@ def ini_config(ini, changes):
 
 
 def activate():
-    event_handler = p(WHIZBANG, 'conf', 'event-handler')
+    hook = p(WHIZBANG, 'conf', 'hook')
     shell  = os.path.basename(os.environ['SHELL'])
 
+    def install_hooks(resource, hooks, source):
+        name = p(HOME, resource)
+        print '{} -> {}'.format(name, hooks)
+        write_file(name, ''.join(('. ' if source else '', hook, ' ', shell, ' ', hooks, '\n')))
+
     if shell == 'zsh':
-        for resource, events in [
-            ('.zshenv',   'shell'),
-            ('.zprofile', 'shell-early-login'),
-            ('.zshrc',    'shell-interactive'),
-            ('.zlogin',   'shell-late-login'),
-            ('.zlogout',  'shell-logout')
-        ]:
-            write_file(p(HOME, resource), ''.join(('. ', event_handler, ' ', shell, ' ', events, '\n')))
+        pass
+    for resource, hooks in [
+        ('.zshenv',   'shell'),
+        ('.zprofile', 'shell-early-login'),
+        ('.zshrc',    'shell-interactive'),
+        ('.zlogin',   'shell-late-login'),
+        ('.zlogout',  'shell-logout'),
+    ]: install_hooks(resource, hooks, True)
+        
+
+    for resource, hooks in [
+        ('.kde/env/de-pre-startup.sh',      'de-pre-startup'),
+        ('.kde/Autostart/de-startup.sh', 'de-startup'),
+        ('.kde/shutdown/de-shutdown.sh',    'de-shutdown')
+    ]: install_hooks(resource, hooks, False)
+
+
+    os.system(WHIZBANG + '/conf/prompt-generator')
 
 def deactivate():
     print "NOT IMPLEMENTED YET"
@@ -79,9 +94,9 @@ try:
             if answer != 'yes':
                 print "Please just type 'yes' or 'no'"
                 continue
-            code = os.system('cd {}; git clone git@github.com:grief/gloydius.git'.format(MODULES))
+            code = os.system('cd {}; git clone https://github.com/Grief/gloydius.git'.format(MODULES))
             if code != 0:
-                print "Cloning from git failed with error {}. You may check the above output. {}".format(code, INSTALLATION_ABORTED)
+                print 'Cloning from git failed with error {}. You may check the above output. {}'.format(code, INSTALLATION_ABORTED)
                 exit(ERROR_UNKNOWN)
             break
 
@@ -108,7 +123,7 @@ try:
 
     # install_file('conky.conf', '.conkyrc')
     #
-    # install_file('event-handler', '.config/autostart/de-startup')
+    # install_file('hook', '.config/autostart/de-startup')
     #
     # ini_config('.kde/share/config/kdeglobals', {'Paths': {'Autostart[$e]': '/g/components/kde/autostart'}})
 

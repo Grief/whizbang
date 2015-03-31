@@ -1,0 +1,31 @@
+#!/usr/bin/python
+# coding=utf-8
+from gloydius import write_file
+
+if __name__ == '__main__':
+    import hashlib, os, pwd
+    from gloydius.color import esc
+
+    from gloydius.pytools import gradient
+
+    x1 = [110, 112, 167, 4, 152, 41, 143, 83, 53]
+    x2 = [114, 59, 189, 66, 23, 160, 246, 211, 230]
+    y1 = [181, 137, 0, 203, 75, 22, 181, 137, 0]
+    y2 = [101, 123, 13, 133, 153, 0, 101, 123, 131]
+
+    def y(i, x):
+        x = float(x)
+        xl, yl, xr, yr = (x1[i], y1[i], x2[i], y2[i]) if x1[i] < x2[i] else (x2[i], y2[i], x1[i], y1[i])
+
+        if x < xl: return x / xl * yl
+        if x > xr: return (x - xr) / (255 - xr) * (255 - yr) + yr  # TODO: simplify?
+
+        return (x - xl) / (xr - xl) * (yr - yl) + yl
+
+    user = pwd.getpwuid(os.getuid())[0]
+    md5 = [ord(x) for x in hashlib.md5(user).digest()]
+    c = [int(y(i, x)) for i, x in zip(range(9), md5[1:7] + md5[8:11])]
+    write_file(''.join((os.environ['WHIZBANG'], '/users/', user, '/hooks/shell-interactive/00-whizbang.sh')), ''.join((
+        "WHIZBANG_PROMPT1='", gradient(c[0:3], c[3:6], 4), esc(bold=True), '%n%m', gradient(c[3:6], (0, 43, 54), 5), "%D{%x [%A] %X}'", '\n',
+        "WHIZBANG_PROMPT2='%{", esc(fg=tuple(c[0:3]), bold=True), '%}%~ %{', esc(), "%}'"
+    )))

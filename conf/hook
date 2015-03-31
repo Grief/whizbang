@@ -17,8 +17,8 @@ handle() {
 	done
 }
 
-for event in "$@"; do
-	handle "$WHIZBANG/user/${USER}/events/$event"
-	handle "$WHIZBANG/user/_common/events/$event"
-	handle "$WHIZBANG/user/_custom/events/$event"
+for hook in "$@"; do
+	handle "$WHIZBANG/users/${USER}/hooks/$hook"
+	handle "$WHIZBANG/users/_common/hooks/$hook"
+	handle "$WHIZBANG/users/_custom/hooks/$hook"
 done

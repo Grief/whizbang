@@ -1,9 +1,8 @@
 .idea
-
+apps/*kil
 modules/*
 
 backup/*
 
-user/*
-!user/_common
-!user/_custom
+users/*
+!users/_common

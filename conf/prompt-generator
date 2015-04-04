@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding=utf-8
-from gloydius import write_file
+from gloydius.fs import write_file
 
 if __name__ == '__main__':
     import hashlib, os, pwd

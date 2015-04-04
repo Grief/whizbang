@@ -30,3 +30,8 @@ alias datestamp='date +%y-%m-%d--%H-%M-%S'
 alias o='xdg-open'
 
 alias up='sudo apt update;sudo apt full-upgrade'
+
+alias fix-apt='sudo rm /var/lib/apt/lists/partial/*'
+alias true-color-test='i=0; while [ $i -lt 256 ]; do echo -n "\x1b[48;2;$i;0;0m "; i=$((i=i+16)); done'
+
+alias edit-aliases="subl $WHIZBANG/users/$USER/hooks/shell-interactive/aliases.sh"

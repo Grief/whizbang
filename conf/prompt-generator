@@ -2,6 +2,12 @@
 # coding=utf-8
 from gloydius.fs import write_file
 
+# BACKGROUND=(0, 43, 54) # Solarized
+BACKGROUND=(43, 43, 43) # Darcula
+
+# AT_CHAR = '☯'
+AT_CHAR = '☢'
+
 if __name__ == '__main__':
     import hashlib, os, pwd
     from gloydius.color import esc
@@ -26,6 +32,6 @@ if __name__ == '__main__':
     md5 = [ord(x) for x in hashlib.md5(user).digest()]
     c = [int(y(i, x)) for i, x in zip(range(9), md5[1:7] + md5[8:11])]
     write_file(''.join((os.environ['WHIZBANG'], '/users/', user, '/hooks/shell-interactive/00-whizbang.sh')), ''.join((
-        "WHIZBANG_PROMPT1='", gradient(c[0:3], c[3:6], 4), esc(bold=True), '%n%m', gradient(c[3:6], (0, 43, 54), 5), "%D{%x [%A] %X}'", '\n',
+        "WHIZBANG_PROMPT1='", gradient(c[0:3], c[3:6], 4), esc(bold=True), '%n', AT_CHAR ,'%m', gradient(c[3:6], BACKGROUND, 5), "%D{%x [%A] %X}'", '\n',
         "WHIZBANG_PROMPT2='%{", esc(fg=tuple(c[0:3]), bold=True), '%}%~ %{', esc(), "%}'"
     )))

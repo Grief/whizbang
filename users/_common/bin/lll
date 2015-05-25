@@ -1,0 +1,58 @@
+#!/usr/bin/python
+# coding=utf-8
+import argparse
+import os
+from subprocess import Popen, PIPE
+
+from gloydius.fs import path as p
+from gloydius.color import esc
+from gloydius.terminal import dimensions
+
+COLOR_DIR  = (181, 137,   0)
+COLOR_FILE = (147, 161, 161)
+
+TYPE_DIR  = 0
+TYPE_FILE = 1
+
+TERMINAL_WIDTH = dimensions()[1]
+
+def dir_tree(absolute, determine_types=False):
+    lines, max_length = [], [0, 1]
+
+    def path_info(path, name, offset=u'', is_last=None):
+        path = p(path, name)
+        is_file = os.path.islink(path) or not os.path.isdir(path)
+        prefix = offset[:-2] + ('' if is_last is None else (u'└─' if is_last else u'├─'))
+        lines.append((prefix, path, name, TYPE_FILE if is_file else TYPE_DIR))
+        length = len(prefix) + len(name)
+        if length > max_length[0]: max_length[0] = length
+        if is_file: return
+        fs, ds = [], []
+        for name in os.listdir(path):
+            sub = p(path, name)
+            (ds if os.path.isdir(sub) and not os.path.islink(sub) else fs).append(name)
+        ds.sort()
+        fs.sort()
+        ds += fs
+        if len(ds) == 0: return
+        for name in ds[:-1]:
+            path_info(path, name, offset + u'│ ', False)
+        path_info(path, ds[-1], offset + u'  ', True)
+        return max
+
+    path_info(os.path.dirname(absolute), os.path.basename(absolute))
+    for prefix, path, name, type in lines:
+        spaces = ' ' * (max_length[0] - len(prefix) - len(name))
+        line = prefix + esc(fg=COLOR_FILE if type == TYPE_FILE else COLOR_DIR, bold=True, message=name) + spaces
+        if determine_types: line += u'║' + Popen(['file', '-b', str(path)], stdout=PIPE).stdout.readlines()[0][:-1]
+        print line
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--type', action='store_true', help='Determine file types')
+    args = parser.parse_args()
+    print args.type
+    try: dir_tree(os.path.abspath(os.curdir), determine_types=args.type)
+    except KeyboardInterrupt: pass
+    print

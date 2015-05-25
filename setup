@@ -36,7 +36,7 @@ def activate():
     def install_hooks(resource, hooks, source):
         name = p(HOME, resource)
         print '{} -> {}'.format(name, hooks)
-        write_file(name, ''.join(('. ' if source else '', hook, ' ', shell, ' ', hooks, '\n')))
+        write_file(name, ''.join((('. ' if source else ''), hook, ' ', shell, ' ', hooks, '\n')))
 
     if shell == 'zsh':
         pass
@@ -47,14 +47,20 @@ def activate():
         ('.zlogin',   'shell-late-login'),
         ('.zlogout',  'shell-logout'),
     ]: install_hooks(resource, hooks, True)
-        
 
-    for resource, hooks in [
-        ('.kde/env/de-pre-startup.sh',      'de-pre-startup'),
-        ('.kde/Autostart/de-startup.sh', 'de-startup'),
-        ('.kde/shutdown/de-shutdown.sh',    'de-shutdown')
-    ]: install_hooks(resource, hooks, False)
+    kde4hooks = [
+        ('.kde/env',       'de-pre-startup'),
+        ('.kde/Autostart', 'de-startup'),
+        ('.kde/shutdown',  'de-shutdown')
+    ]
+    kde5hooks = [
+        ('.config/plasma-workspace/env',      'de-pre-startup'),
+        ('.config/autostart',                 'de-startup'),
+        ('.config/plasma-workspace/shutdown', 'de-shutdown')
+    ]
 
+    de_hooks = kde5hooks
+    for resource, hooks in de_hooks: install_hooks(p(resource, hooks + '.sh'), hooks, False)
 
     os.system(WHIZBANG + '/conf/prompt-generator')
 
